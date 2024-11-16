@@ -8,9 +8,18 @@ class Gestor_tareas(QMainWindow):
         self.setGeometry(100,100,600,400)
         self.inicializar_ui()
 
-    def inizializar_ui(self):
+    def inicializar_ui(self):
         layout = QVBoxLayout()
         self.lista_tareas = QListWidget()
         layout.addWidget(self.lista_tareas)
         self.boton_agregar = QPushButton('Agregar Tarea')
         layout.addWidget(self.boton_agregar)
+        self.boton_agregar.clicked.connect(self.mostrar_dialogoAgregar)
+        contenedor = QWidget()
+        contenedor.setLayout(layout)
+        self.setCentralWidget(contenedor)
+
+    def mostrar_dialogoAgregar(self):
+        pass
+
+    
