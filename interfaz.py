@@ -11,7 +11,7 @@ class Gestor_tareas(QMainWindow):
     def setup_ui(self):
         self.setWindowTitle("Gestor de Tareas")
         self.setFixedSize(700, 550)
-        self.setWindowIcon(QIcon("task_icon.png"))  # Agrega un ícono a tu app si tienes uno
+        self.setWindowIcon(QIcon("task_icon.png"))  
 
         # Tab Widget
         self.tabs = QTabWidget(self)
