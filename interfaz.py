@@ -79,6 +79,12 @@ class Gestor_tareas(QMainWindow):
         self.combo_category.setGeometry(520, 440, 100, 30)
         self.combo_category.addItems(["Todas", "Alta", "Media", "Baja"])
         
+        #Tab para tareas completadas
+        self.tab_list_complet = QWidget()
+        self.tabs.addTab(self.tab_list_complet, 'Tareas Completadas')
+        self.listview = QListView(self.tab_list_complet)
+        self.listview.setGeometry(20, 20, 600, 400)
+        self.listview.setViewMode(QListView.ListMode)
 
         # Placeholder para otras pestañas (Notas y Calendario)
         self.tab_notes_calendar = QWidget()
