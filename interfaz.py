@@ -86,15 +86,18 @@ class Gestor_tareas(QMainWindow):
         self.listview.setGeometry(20, 20, 600, 400)
         self.listview.setViewMode(QListView.ListMode)
 
-        # Placeholder para otras pestañas (Notas y Calendario)
-        self.tab_notes_calendar = QWidget()
-        self.tabs.addTab(self.tab_notes_calendar, "Notas y Calendario")
+        # Placeholder para la ventana de notas
 
-        # Contenido de la pestaña de Notas y Calendario
-        self.calendar_widget = QCalendarWidget(self.tab_notes_calendar)
-        self.calendar_widget.setGeometry(20, 20, 300, 300)
+        self.tab_notas = QWidget()
+        self.tabs.addTab(self.tab_notas, 'Notas y Comentarios')
 
-        self.command_link_button = QCommandLinkButton("Repositorio del Proyecto", self.tab_notes_calendar)
+        # Placeholder para la ventana de calendario
+        self.tab_calendar = QWidget()
+        self.tabs.addTab(self.tab_calendar, "Calendario")
+        self.calendar_widget = QCalendarWidget(self.tab_calendar)
+        self.calendar_widget.setGeometry(20, 200, 300, 300)
+
+        self.command_link_button = QCommandLinkButton("Repositorio del Proyecto", self.tab_calendar)
         self.command_link_button.setGeometry(340, 250, 220, 40)
 
     def create_task(self):
