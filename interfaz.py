@@ -1,5 +1,5 @@
-from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox, QTabWidget, QGroupBox, QLabel, QLineEdit, QDateEdit, QTimeEdit, QPlainTextEdit, QCheckBox, QPushButton, QWidget
-from PySide6.QtCore import QDateTime
+from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox, QTabWidget, QGroupBox, QLabel, QLineEdit, QDateEdit, QTimeEdit, QPlainTextEdit, QCheckBox, QPushButton, QComboBox, QScrollArea, QVBoxLayout, QWidget, QToolBox, QListView, QFrame, QCalendarWidget, QCommandLinkButton
+from PySide6.QtCore import QDateTime, Qt
 from PySide6.QtGui import QIcon
 import sys
 
@@ -11,7 +11,7 @@ class Gestor_tareas(QMainWindow):
     def setup_ui(self):
         self.setWindowTitle("Gestor de Tareas")
         self.setFixedSize(700, 550)
-        self.setWindowIcon(QIcon("task_icon.png"))  
+        self.setWindowIcon(QIcon("task_icon.png"))
 
         # Tab Widget
         self.tabs = QTabWidget(self)
@@ -54,17 +54,42 @@ class Gestor_tareas(QMainWindow):
         self.checkbox_repeat = QCheckBox("Repetir", self.group_create_task)
         self.checkbox_repeat.setGeometry(310, 150, 100, 30)
 
+        # Combobox: Prioridad de la tarea
+        self.label_priority = QLabel("Prioridad:", self.group_create_task)
+        self.label_priority.setGeometry(40, 340, 100, 20)
+        self.combo_priority = QComboBox(self.group_create_task)
+        self.combo_priority.setGeometry(120, 340, 100, 30)
+        self.combo_priority.addItems(["Alta", "Media", "Baja"])
+
         # Botón: Crear Tarea
         self.btn_create_task = QPushButton("Crear", self.group_create_task)
         self.btn_create_task.setGeometry(520, 420, 75, 30)
         self.btn_create_task.clicked.connect(self.create_task)
 
-        # Placeholder para otras pestañas (opcional)
+        # Tab: Lista de Tareas (con categorías)
         self.tab_tasks_list = QWidget()
         self.tabs.addTab(self.tab_tasks_list, "Lista de Tareas")
 
-        self.tab_completed_tasks = QWidget()
-        self.tabs.addTab(self.tab_completed_tasks, "Tareas Completadas")
+        self.listview = QListView(self.tab_tasks_list)
+        self.listview.setGeometry(20, 20, 600, 400)
+        self.listview.setViewMode(QListView.ListMode)
+
+        # Añadir un combobox para seleccionar categoría de tareas
+        self.combo_category = QComboBox(self.tab_tasks_list)
+        self.combo_category.setGeometry(520, 440, 100, 30)
+        self.combo_category.addItems(["Todas", "Alta", "Media", "Baja"])
+        
+
+        # Placeholder para otras pestañas (Notas y Calendario)
+        self.tab_notes_calendar = QWidget()
+        self.tabs.addTab(self.tab_notes_calendar, "Notas y Calendario")
+
+        # Contenido de la pestaña de Notas y Calendario
+        self.calendar_widget = QCalendarWidget(self.tab_notes_calendar)
+        self.calendar_widget.setGeometry(20, 20, 300, 300)
+
+        self.command_link_button = QCommandLinkButton("Repositorio del Proyecto", self.tab_notes_calendar)
+        self.command_link_button.setGeometry(340, 250, 220, 40)
 
     def create_task(self):
         """
@@ -75,20 +100,21 @@ class Gestor_tareas(QMainWindow):
         time = self.input_time.time().toString("HH:mm")
         description = self.input_description.toPlainText().strip()
         repeat = self.checkbox_repeat.isChecked()
+        priority = self.combo_priority.currentText()
 
         if not title:
             QMessageBox.warning(self, "Error", "El título de la tarea no puede estar vacío.")
             return
 
         # Aquí puedes conectar con tu base de datos para guardar la tarea
-        print(f"Tarea creada: {title}, Fecha: {date}, Hora: {time}, Repetir: {repeat}")
+        print(f"Tarea creada: {title}, Fecha: {date}, Hora: {time}, Repetir: {repeat}, Prioridad: {priority}")
         QMessageBox.information(self, "Éxito", f"Tarea '{title}' creada exitosamente.")
 
         # Limpiar campos después de crear la tarea
         self.input_title.clear()
         self.input_description.clear()
         self.checkbox_repeat.setChecked(False)
-
+        self.combo_priority.setCurrentIndex(0)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
