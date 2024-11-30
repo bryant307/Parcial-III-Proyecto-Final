@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox, QTabWidget, QGroupBox, QLabel, QLineEdit, QDateEdit, QTimeEdit, QPlainTextEdit, QCheckBox, QPushButton, QComboBox, QScrollArea, QVBoxLayout, QWidget, QToolBox, QListView, QFrame, QCalendarWidget, QCommandLinkButton
-from PySide6.QtCore import QDateTime, Qt
-from PySide6.QtGui import QIcon
+from PySide6.QtCore import QDateTime, Qt, QUrl
+from PySide6.QtGui import QIcon, QDesktopServices
 import sys
 
 class Gestor_tareas(QMainWindow):
@@ -90,6 +90,16 @@ class Gestor_tareas(QMainWindow):
 
         self.tab_notas = QWidget()
         self.tabs.addTab(self.tab_notas, 'Notas y Comentarios')
+        self.label_title = QLabel("Nota Nueva:", self.tab_notas)
+        self.label_title.setGeometry(40, 40, 120, 20)
+        self.input_title = QLineEdit(self.tab_notas)
+        self.input_title.setGeometry(40, 70, 300, 30)
+        self.input_title.setPlaceholderText("Escribe el título de la notas")
+        self.label_description = QLabel("Contenido:", self.tab_notas)
+        self.label_description.setGeometry(40, 100 , 120, 20)
+        self.input_description = QPlainTextEdit(self.tab_notas)
+        self.input_description.setGeometry(40, 120, 310, 100)
+        self.input_description.setPlaceholderText("Escribe la descripción de la nota")
 
         # Placeholder para la ventana de calendario
         self.tab_calendar = QWidget()
@@ -99,10 +109,15 @@ class Gestor_tareas(QMainWindow):
 
         self.command_link_button = QCommandLinkButton("Repositorio del Proyecto", self.tab_calendar)
         self.command_link_button.setGeometry(340, 250, 220, 40)
+        self.command_link_button.clicked.connect(self.abrir_repo)
+
+    def abrir_repo(self):
+        url = QUrl('https://github.com/bryant307/Parcial-III-Proyecto-Final')
+        QDesktopServices.openUrl(url)
 
     def create_task(self):
         """
-        Valida los campos y crea una nueva tarea. Implementa lógica de guardado en base de datos aquí.
+        Valida los campos y crea una nueva tarea. Implementar lógica de guardado en base de datos aquí
         """
         title = self.input_title.text().strip()
         date = self.input_date.date().toString("yyyy-MM-dd")
