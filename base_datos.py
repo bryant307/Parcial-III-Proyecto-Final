@@ -1,14 +1,53 @@
 import sqlite3
 
-def conectar():
-    conexion = sqlite3.connect('tareas.db')
+DB_NAME = "gestor_tareas.db"
+
+def inicializar_db():
+    conexion = sqlite3.connect(DB_NAME)
     cursor = conexion.cursor()
-    cursor.execute('''CREATE TABLE IF NOT EXISTS tareas (
-                        id INTEGER PRIMARY KEY,
-                        titulo TEXT NOT NULL,
-                        descripcion TEXT,
-                        fecha_limite TEXT,
-                        completada INTEGER DEFAULT 0
-                    )''')
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS tareas (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            titulo TEXT NOT NULL,
+            fecha TEXT NOT NULL,
+            hora TEXT NOT NULL,
+            descripcion TEXT,
+            prioridad TEXT,
+            repetir BOOLEAN,
+            estado TEXT DEFAULT 'pendiente'
+        )
+    """)
     conexion.commit()
-    return conexion, cursor
+    conexion.close()
+
+def agregar_tarea(titulo, fecha, hora, descripcion, prioridad, repetir):
+    conexion = sqlite3.connect(DB_NAME)
+    cursor = conexion.cursor()
+    cursor.execute("""
+        INSERT INTO tareas (titulo, fecha, hora, descripcion, prioridad, repetir)
+        VALUES (?, ?, ?, ?, ?, ?)
+    """, (titulo, fecha, hora, descripcion, prioridad, repetir))
+    conexion.commit()
+    conexion.close()
+
+def obtener_tareas(estado="pendiente"):
+    conexion = sqlite3.connect(DB_NAME)
+    cursor = conexion.cursor()
+    cursor.execute("SELECT id, titulo, fecha, hora, descripcion, prioridad FROM tareas WHERE estado = ?", (estado,))
+    tareas = cursor.fetchall()
+    conexion.close()
+    return tareas
+
+def actualizar_estado_tarea(id_tarea, nuevo_estado):
+    conexion = sqlite3.connect(DB_NAME)
+    cursor = conexion.cursor()
+    cursor.execute("UPDATE tareas SET estado = ? WHERE id = ?", (nuevo_estado, id_tarea))
+    conexion.commit()
+    conexion.close()
+
+def eliminar_tarea(id_tarea):
+    conexion = sqlite3.connect(DB_NAME)
+    cursor = conexion.cursor()
+    cursor.execute("DELETE FROM tareas WHERE id = ?", (id_tarea,))
+    conexion.commit()
+    conexion.close()

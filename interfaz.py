@@ -2,12 +2,16 @@ from PySide6.QtWidgets import QWidget, QApplication, QMainWindow, QMessageBox, Q
 from PySide6.QtCore import QDateTime, Qt, QUrl
 from PySide6.QtGui import QIcon, QDesktopServices, QStandardItemModel, QStandardItem
 import sys
+import base_datos as db_manager
+
+
 
 class Gestor_tareas(QMainWindow):
     def __init__(self):
         super().__init__()
+        db_manager.inicializar_db()
         self.setup_ui()
-
+        
     def setup_ui(self):
         self.setWindowTitle("Gestor de Tareas")
         self.setFixedSize(700, 550)
@@ -18,7 +22,7 @@ class Gestor_tareas(QMainWindow):
         self.tabs.setGeometry(25, 20, 650, 500)
 
         # Tab: Crear Tareas
-        self.tab_create_task = QWidget()
+        self.tab_create_task = QTabWidget()
         self.tabs.addTab(self.tab_create_task, "Crear Tarea")
 
         # Grupo: Formulario para Crear Tareas
@@ -121,7 +125,10 @@ class Gestor_tareas(QMainWindow):
             QMessageBox.warning(self, "Error", "El título de la tarea no puede estar vacío.")
             return
 
-        # Crear elemento para la tarea
+        # Guardar tarea en la base de datos
+        db_manager.agregar_tarea(title, date, time, description, priority, repeat)
+
+        # Actualizar la vista
         task_item = QStandardItem(f"{title} - {date} {time} - {priority}")
         self.tasks_model.appendRow(task_item)
 
