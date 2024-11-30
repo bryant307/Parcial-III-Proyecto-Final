@@ -66,13 +66,14 @@ class Gestor_tareas(QMainWindow):
         self.btn_create_task.setGeometry(520, 420, 75, 30)
         self.btn_create_task.clicked.connect(self.create_task)
 
-        # Tab: Lista de Tareas (con categorías)
+        # Tab: Lista de Tareas
         self.tab_tasks_list = QWidget()
         self.tabs.addTab(self.tab_tasks_list, "Lista de Tareas")
 
         self.listview = QListView(self.tab_tasks_list)
         self.listview.setGeometry(20, 20, 600, 400)
         self.listview.setViewMode(QListView.ListMode)
+        
 
         # Añadir un combobox para seleccionar categoría de tareas
         self.combo_category = QComboBox(self.tab_tasks_list)
