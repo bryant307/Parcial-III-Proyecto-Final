@@ -5,6 +5,8 @@ DB_NAME = "gestor_tareas.db"
 def inicializar_db():
     conexion = sqlite3.connect(DB_NAME)
     cursor = conexion.cursor()
+    
+    # Crear la tabla si no existe
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS tareas (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -19,8 +21,26 @@ def inicializar_db():
             completada BOOLEAN DEFAULT 0
         )
     """)
+
+    # Asegurarse de que las columnas 'notificado' y 'completada' existan
+    cursor.execute("""
+        PRAGMA table_info(tareas);
+    """)
+    columnas = [col[1] for col in cursor.fetchall()]
+    
+    if 'notificado' not in columnas:
+        cursor.execute("""
+            ALTER TABLE tareas ADD COLUMN notificado INTEGER DEFAULT 0
+        """)
+
+    if 'completada' not in columnas:
+        cursor.execute("""
+            ALTER TABLE tareas ADD COLUMN completada INTEGER DEFAULT 0
+        """)
+    
     conexion.commit()
     conexion.close()
+
 
 
 def agregar_tarea(titulo, fecha, hora, descripcion, prioridad, repetir):
@@ -30,6 +50,29 @@ def agregar_tarea(titulo, fecha, hora, descripcion, prioridad, repetir):
         INSERT INTO tareas (titulo, fecha, hora, descripcion, prioridad, repetir)
         VALUES (?, ?, ?, ?, ?, ?)
     """, (titulo, fecha, hora, descripcion, prioridad, repetir))
+    conexion.commit()
+    conexion.close()
+
+def agregar_columna_notificado():
+    conexion = sqlite3.connect(DB_NAME)
+    cursor = conexion.cursor()
+
+    # Verificar si la columna 'notificado' ya existe
+    cursor.execute("PRAGMA table_info(tareas);")
+    columnas = [col[1] for col in cursor.fetchall()]
+
+    # Solo agregar la columna si no existe
+    if 'notificado' not in columnas:
+        cursor.execute("""
+            ALTER TABLE tareas ADD COLUMN notificado INTEGER DEFAULT 0
+        """)
+    
+    # Verificar si la columna 'completada' ya existe
+    if 'completada' not in columnas:
+        cursor.execute("""
+            ALTER TABLE tareas ADD COLUMN completada INTEGER DEFAULT 0
+        """)
+
     conexion.commit()
     conexion.close()
 
@@ -79,3 +122,8 @@ def marcar_notificada(titulo):
     """, (titulo,))
     conexion.commit()
     conexion.close()
+
+
+
+if __name__ == "__main__":
+    agregar_columna_notificado()

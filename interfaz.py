@@ -3,7 +3,6 @@ from PySide6.QtCore import QDateTime, Qt, QUrl, QTimer
 from PySide6.QtGui import QIcon, QDesktopServices, QStandardItemModel, QStandardItem
 import sys
 import base_datos as db_manager
-from plyer import notification
 
 
 
@@ -141,7 +140,6 @@ class Gestor_tareas(QMainWindow):
         task_text = f'{title} - {date} {time} - {priority}'
         task_item = QStandardItem(task_text)
         self.tasks_model.appendRow(task_item)
-        self.tasks_model.appendRow(task_item)
         self.task_details[task_text] = description
         
 
@@ -199,12 +197,17 @@ class Gestor_tareas(QMainWindow):
 
     from plyer import notification
 
-def mostrar_notificacion(self, titulo):
-    notification.notify(
-        title="Recordatorio de Tarea",
-        message=f"¡Recuerda! La tarea '{titulo}' está próxima a su hora límite.",
-        timeout=10  # Mostrar por 10 segundos
-    )
+
+
+    def mostrar_notificacion(self, titulo):
+        # Crear una ventana emergente de notificación
+        mensaje = QMessageBox(self)
+        mensaje.setIcon(QMessageBox.Information)  # Icono de información
+        mensaje.setWindowTitle("Recordatorio de Tarea")  # Título de la ventana
+        mensaje.setText(f"¡Recuerda! La tarea '{titulo}' está próxima a su hora límite.")  # Mensaje
+        mensaje.setStandardButtons(QMessageBox.Ok)  # Botón de "Aceptar"
+        mensaje.exec()  # Mostrar la ventana emergente
+ 
 
 
 
