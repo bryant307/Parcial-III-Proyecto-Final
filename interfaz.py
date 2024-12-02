@@ -1,8 +1,9 @@
 from PySide6.QtWidgets import QWidget, QApplication, QMainWindow, QMessageBox, QTabWidget, QGroupBox, QLabel, QLineEdit, QDateEdit, QTimeEdit, QPlainTextEdit, QCheckBox, QPushButton, QComboBox, QListView, QCalendarWidget, QCommandLinkButton
-from PySide6.QtCore import QDateTime, Qt, QUrl
+from PySide6.QtCore import QDateTime, Qt, QUrl, QTimer
 from PySide6.QtGui import QIcon, QDesktopServices, QStandardItemModel, QStandardItem
 import sys
 import base_datos as db_manager
+from plyer import notification
 
 
 
@@ -10,7 +11,11 @@ class Gestor_tareas(QMainWindow):
     def __init__(self):
         super().__init__()
         db_manager.inicializar_db()
+        self.task_details = {}
         self.setup_ui()
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.verificar_tareas)
+        self.timer.start(60000)
         
     def setup_ui(self):
         self.setWindowTitle("Gestor de Tareas")
@@ -80,6 +85,11 @@ class Gestor_tareas(QMainWindow):
         self.listview = QListView(self.tab_tasks_list)
         self.listview.setGeometry(20, 20, 600, 400)
         self.listview.setModel(self.tasks_model)
+        self.listview.clicked.connect(self.mostrar_detalle_tarea)  # Conecta el evento de selección
+
+        # Campo para mostrar la descripción
+        self.label_task_detail = QLabel("Descripción de la tarea seleccionada:", self.tab_tasks_list)
+        self.label_task_detail.setGeometry(20, 420, 600, 30)
 
         # Botones en la pestaña Lista de Tareas
         self.btn_complete_task = QPushButton("Marcar Completada", self.tab_tasks_list)
@@ -128,15 +138,24 @@ class Gestor_tareas(QMainWindow):
         # Guardar tarea en la base de datos
         db_manager.agregar_tarea(title, date, time, description, priority, repeat)
 
-        # Actualizar la vista
-        task_item = QStandardItem(f"{title} - {date} {time} - {priority}")
+        task_text = f'{title} - {date} {time} - {priority}'
+        task_item = QStandardItem(task_text)
         self.tasks_model.appendRow(task_item)
+        self.tasks_model.appendRow(task_item)
+        self.task_details[task_text] = description
+        
+
 
         QMessageBox.information(self, "Éxito", f"Tarea '{title}' creada exitosamente.")
         self.input_title.clear()
         self.input_description.clear()
         self.checkbox_repeat.setChecked(False)
         self.combo_priority.setCurrentIndex(0)
+        
+    def mostrar_detalle_tarea(self, index):
+        task_text = self.tasks_model.itemFromIndex(index).text()
+        details = self.task_details.get(task_text, "Sin detalles disponibles")
+        self.label_task_detail.setText(f"Descripción: {details}")
 
     def marcar_tarea_completada(self):
         selected_indexes = self.listview.selectedIndexes()
@@ -160,6 +179,34 @@ class Gestor_tareas(QMainWindow):
             self.tasks_model.removeRow(index.row())
 
         QMessageBox.information(self, "Éxito", "Tarea eliminada.")
+
+    def verificar_tareas(self):
+        # Obtener la fecha y hora actual
+        ahora = QDateTime.currentDateTime()
+
+        # Consultar las tareas pendientes desde la base de datos
+        tareas = db_manager.obtener_tareas_pendientes()
+
+        for tarea in tareas:
+            titulo, fecha, hora, notificado = tarea
+            fecha_hora = QDateTime.fromString(f"{fecha} {hora}", "yyyy-MM-dd HH:mm")
+
+            # Verificar si la tarea está próxima (15 minutos antes)
+            if not notificado and ahora.secsTo(fecha_hora) <= 900 and ahora < fecha_hora:
+                self.mostrar_notificacion(titulo)
+                # Marcar como notificada en la base de datos
+                db_manager.marcar_notificada(titulo)
+
+    from plyer import notification
+
+def mostrar_notificacion(self, titulo):
+    notification.notify(
+        title="Recordatorio de Tarea",
+        message=f"¡Recuerda! La tarea '{titulo}' está próxima a su hora límite.",
+        timeout=10  # Mostrar por 10 segundos
+    )
+
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

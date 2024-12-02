@@ -14,11 +14,14 @@ def inicializar_db():
             descripcion TEXT,
             prioridad TEXT,
             repetir BOOLEAN,
-            estado TEXT DEFAULT 'pendiente'
+            estado TEXT DEFAULT 'pendiente',
+            notificado BOOLEAN DEFAULT 0,
+            completada BOOLEAN DEFAULT 0
         )
     """)
     conexion.commit()
     conexion.close()
+
 
 def agregar_tarea(titulo, fecha, hora, descripcion, prioridad, repetir):
     conexion = sqlite3.connect(DB_NAME)
@@ -49,5 +52,30 @@ def eliminar_tarea(id_tarea):
     conexion = sqlite3.connect(DB_NAME)
     cursor = conexion.cursor()
     cursor.execute("DELETE FROM tareas WHERE id = ?", (id_tarea,))
+    conexion.commit()
+    conexion.close()
+
+# Obtener tareas pendientes
+def obtener_tareas_pendientes():
+    conexion = sqlite3.connect(DB_NAME)
+    cursor = conexion.cursor()
+    cursor.execute("""
+        SELECT titulo, fecha, hora, notificado
+        FROM tareas
+        WHERE completada = 0 AND notificado = 0
+    """)
+    tareas = cursor.fetchall()
+    conexion.close()
+    return tareas
+
+
+def marcar_notificada(titulo):
+    conexion = sqlite3.connect(DB_NAME)
+    cursor = conexion.cursor()
+    cursor.execute("""
+        UPDATE tareas
+        SET notificado = 1
+        WHERE titulo = ?
+    """, (titulo,))
     conexion.commit()
     conexion.close()
