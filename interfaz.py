@@ -1,11 +1,11 @@
 from PySide6.QtWidgets import QWidget, QApplication, QMainWindow, QMessageBox, QTabWidget, QGroupBox, QLabel, QLineEdit, QDateEdit, QTimeEdit, QPlainTextEdit, QCheckBox, QPushButton, QComboBox, QListView, QCalendarWidget, QCommandLinkButton
-from PySide6.QtCore import QDateTime, Qt, QUrl, QTimer
-from PySide6.QtGui import QIcon, QDesktopServices, QStandardItemModel, QStandardItem
+from PySide6.QtCore import QDateTime, QUrl, QTimer
+from PySide6.QtGui import QIcon, Qt, QDesktopServices, QStandardItemModel, QStandardItem, QColor
 import sys
 import base_datos as db_manager
 
 
-
+#Clase Principa
 class Gestor_tareas(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -21,15 +21,14 @@ class Gestor_tareas(QMainWindow):
         self.setFixedSize(700, 550)
         self.setWindowIcon(QIcon("task_icon.png"))
 
-        # Tab Widget
         self.tabs = QTabWidget(self)
         self.tabs.setGeometry(25, 20, 650, 500)
 
-        # Tab: Crear Tareas
+        # Tab Crear Tareas
         self.tab_create_task = QTabWidget()
         self.tabs.addTab(self.tab_create_task, "Crear Tarea")
 
-        # Grupo: Formulario para Crear Tareas
+        # Formulario para Crear Tareas
         self.group_crear_tarea = QGroupBox("CREAR TAREAS", self.tab_create_task)
         self.group_crear_tarea.setGeometry(10, 10, 620, 460)
 
@@ -74,7 +73,6 @@ class Gestor_tareas(QMainWindow):
         self.btn_create_task.setGeometry(520, 420, 75, 30)
         self.btn_create_task.clicked.connect(self.create_task)
 
-        # Modelo para las tareas
         self.tasks_model = QStandardItemModel()
 
         # Tab: Lista de Tareas
@@ -82,6 +80,19 @@ class Gestor_tareas(QMainWindow):
         self.tabs.addTab(self.tab_tasks_list, "Lista de Tareas")
 
         self.listview = QListView(self.tab_tasks_list)
+        self.listview.setStyleSheet("""
+            QListView::item {
+                padding: 10px;
+                border: 1px solid #d9d9d9;
+                border-radius: 5px;
+                margin-bottom: 5px;
+            }
+            QListView::item:selected {
+                background-color: #0078D7;
+                color: white;
+            }
+        """)
+
         self.listview.setGeometry(20, 20, 600, 400)
         self.listview.setModel(self.tasks_model)
         self.listview.clicked.connect(self.mostrar_detalle_tarea)  # Conecta el evento de selección
@@ -118,6 +129,7 @@ class Gestor_tareas(QMainWindow):
         self.command_link_button.setGeometry(340, 250, 220, 40)
         self.command_link_button.clicked.connect(self.abrir_repo)
 
+    #Funcion del boton de Link del repositorio
     def abrir_repo(self):
         url = QUrl('https://github.com/bryant307/Parcial-III-Proyecto-Final')
         QDesktopServices.openUrl(url)
@@ -138,12 +150,17 @@ class Gestor_tareas(QMainWindow):
         db_manager.agregar_tarea(title, date, time, description, priority, repeat)
 
         task_text = f'{title} - {date} {time} - {priority}'
-        task_item = QStandardItem(task_text)
+        task_item = QStandardItem()
+        task_item.setData(task_text, Qt.DisplayRole)
+        if priority == "Alta":
+            task_item.setForeground(QColor("red"))
+        elif priority == "Media":
+            task_item.setForeground(QColor("orange"))
+        elif priority == "Baja":
+            task_item.setForeground(QColor("green"))
         self.tasks_model.appendRow(task_item)
         self.task_details[task_text] = description
         
-
-
         QMessageBox.information(self, "Éxito", f"Tarea '{title}' creada exitosamente.")
         self.input_title.clear()
         self.input_description.clear()
@@ -195,21 +212,15 @@ class Gestor_tareas(QMainWindow):
                 # Marcar como notificada en la base de datos
                 db_manager.marcar_notificada(titulo)
 
-    from plyer import notification
-
-
-
+    #Funcion para mostrar notificacion
     def mostrar_notificacion(self, titulo):
-        # Crear una ventana emergente de notificación
         mensaje = QMessageBox(self)
-        mensaje.setIcon(QMessageBox.Information)  # Icono de información
-        mensaje.setWindowTitle("Recordatorio de Tarea")  # Título de la ventana
-        mensaje.setText(f"¡Recuerda! La tarea '{titulo}' está próxima a su hora límite.")  # Mensaje
-        mensaje.setStandardButtons(QMessageBox.Ok)  # Botón de "Aceptar"
-        mensaje.exec()  # Mostrar la ventana emergente
+        mensaje.setIcon(QMessageBox.Information)  
+        mensaje.setWindowTitle("Recordatorio de Tarea")  
+        mensaje.setText(f"¡Recuerda! La tarea '{titulo}' está próxima a su hora límite.") 
+        mensaje.setStandardButtons(QMessageBox.Ok)
+        mensaje.exec()  
  
-
-
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

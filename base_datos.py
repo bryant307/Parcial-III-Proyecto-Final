@@ -6,7 +6,7 @@ def inicializar_db():
     conexion = sqlite3.connect(DB_NAME)
     cursor = conexion.cursor()
     
-    # Crear la tabla si no existe
+    # Crear la tabla
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS tareas (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -22,7 +22,6 @@ def inicializar_db():
         )
     """)
 
-    # Asegurarse de que las columnas 'notificado' y 'completada' existan
     cursor.execute("""
         PRAGMA table_info(tareas);
     """)
@@ -57,11 +56,11 @@ def agregar_columna_notificado():
     conexion = sqlite3.connect(DB_NAME)
     cursor = conexion.cursor()
 
-    # Verificar si la columna 'notificado' ya existe
+    
     cursor.execute("PRAGMA table_info(tareas);")
     columnas = [col[1] for col in cursor.fetchall()]
 
-    # Solo agregar la columna si no existe
+    # Verifica si la columna notificado exste
     if 'notificado' not in columnas:
         cursor.execute("""
             ALTER TABLE tareas ADD COLUMN notificado INTEGER DEFAULT 0
